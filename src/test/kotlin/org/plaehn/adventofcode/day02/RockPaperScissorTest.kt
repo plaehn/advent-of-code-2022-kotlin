@@ -27,6 +27,26 @@ internal class RockPaperScissorTest {
         assertThat(totalScore).isEqualTo(13565)
     }
 
+    @Test
+    fun `Compute total score part 2 for test input`() {
+        val lines = readInput("test_input.txt")
+
+        val rockPaperScissors = RockPaperScissors.fromInputLines(lines)
+        val totalScore = rockPaperScissors.computeTotalScorePartTwo()
+
+        assertThat(totalScore).isEqualTo(12)
+    }
+
+    @Test
+    fun `Compute total score part 2 for puzzle input`() {
+        val lines = readInput("puzzle_input.txt")
+
+        val rockPaperScissors = RockPaperScissors.fromInputLines(lines)
+        val totalScore = rockPaperScissors.computeTotalScorePartTwo()
+
+        assertThat(totalScore).isEqualTo(12424)
+    }
+
     private fun readInput(resource: String): List<String> =
         this::class.java.readLines(resource)
 }
