@@ -1,8 +1,6 @@
 package org.plaehn.adventofcode.day02
 
 import org.plaehn.adventofcode.day02.Result.*
-import org.plaehn.adventofcode.day02.Shape.ROCK
-import org.plaehn.adventofcode.day02.Shape.SCISSORS
 
 class RockPaperScissors(private val strategyGuide: List<Round>) {
 
@@ -25,16 +23,10 @@ data class Round(
 
     // Rock defeats Scissors, Scissors defeats Paper, and Paper defeats Rock
     private fun computeResult() =
-        if (you == opponent) {
-            DRAW
-        } else if (you == ROCK && opponent == SCISSORS) {
-            WIN
-        } else if (you == SCISSORS && opponent == ROCK) {
-            LOSS
-        } else if (you > opponent) {
-            WIN
-        } else {
-            LOSS
+        when (you.score - opponent.score) {
+            0 -> DRAW
+            1, -2 -> WIN
+            else -> LOSS
         }
 
     companion object {
