@@ -8,10 +8,10 @@ import org.plaehn.adventofcode.common.readLines
 internal class RockPaperScissorTest {
 
     @Test
-    fun `Compute total score for test input`() {
+    fun `Count pairs for test input`() {
         val lines = this::class.java.readLines("test_input.txt")
 
-        val rockPaperScissors = RockPaperScissors.fromInputLines(lines)
+        val rockPaperScissors = RockPaperScissors.fromInput(lines)
         val totalScore = rockPaperScissors.computeTotalScore()
 
         assertThat(totalScore).isEqualTo(15)
@@ -21,7 +21,7 @@ internal class RockPaperScissorTest {
     fun `Compute total score for puzzle input`() {
         val lines = this::class.java.readLines("puzzle_input.txt")
 
-        val rockPaperScissors = RockPaperScissors.fromInputLines(lines)
+        val rockPaperScissors = RockPaperScissors.fromInput(lines)
         val totalScore = rockPaperScissors.computeTotalScore()
 
         assertThat(totalScore).isEqualTo(13565)
@@ -31,7 +31,7 @@ internal class RockPaperScissorTest {
     fun `Compute total score part 2 for test input`() {
         val lines = this::class.java.readLines("test_input.txt")
 
-        val rockPaperScissors = RockPaperScissors.fromInputLines(lines)
+        val rockPaperScissors = RockPaperScissors.fromInput(lines)
         val totalScore = rockPaperScissors.computeTotalScorePartTwo()
 
         assertThat(totalScore).isEqualTo(12)
@@ -41,7 +41,7 @@ internal class RockPaperScissorTest {
     fun `Compute total score part 2 for puzzle input`() {
         val lines = this::class.java.readLines("puzzle_input.txt")
 
-        val rockPaperScissors = RockPaperScissors.fromInputLines(lines)
+        val rockPaperScissors = RockPaperScissors.fromInput(lines)
         val totalScore = rockPaperScissors.computeTotalScorePartTwo()
 
         assertThat(totalScore).isEqualTo(12424)

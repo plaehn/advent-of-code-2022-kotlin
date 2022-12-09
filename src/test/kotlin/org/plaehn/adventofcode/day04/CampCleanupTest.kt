@@ -26,4 +26,24 @@ internal class CampCleanupTest {
 
         assertThat(count).isEqualTo(494)
     }
+
+    @Test
+    fun `Count pairs where ranges overlap for test input`() {
+        val lines = this::class.java.readLines("test_input.txt")
+
+        val campCleanup = CampCleanup.fromInput(lines)
+        val count = campCleanup.countPairsWhereRangesOverlap()
+
+        assertThat(count).isEqualTo(4)
+    }
+
+    @Test
+    fun `Count pairs where ranges overlap for puzzle input`() {
+        val lines = this::class.java.readLines("puzzle_input.txt")
+
+        val campCleanup = CampCleanup.fromInput(lines)
+        val count = campCleanup.countPairsWhereRangesOverlap()
+
+        assertThat(count).isEqualTo(833)
+    }
 }

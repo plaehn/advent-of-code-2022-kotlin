@@ -8,6 +8,9 @@ class CampCleanup(private val assignmentPairs: List<Pair<IntRange, IntRange>>) {
 
     private fun IntRange.contains(other: IntRange) = (other - this).isEmpty()
 
+    fun countPairsWhereRangesOverlap() =
+        assignmentPairs.count { it.first.intersect(it.second).isNotEmpty() }
+
     companion object {
 
         fun fromInput(lines: List<String>) = CampCleanup(lines.toAssignmentPairs())
@@ -20,7 +23,7 @@ class CampCleanup(private val assignmentPairs: List<Pair<IntRange, IntRange>>) {
 
         private fun String.toIntRange(): IntRange {
             val (from, to) = split("-")
-            return IntRange(from.toInt(), to.toInt() + 1)
+            return IntRange(from.toInt(), to.toInt())
         }
     }
 }

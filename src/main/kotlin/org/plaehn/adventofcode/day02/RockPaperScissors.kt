@@ -29,7 +29,7 @@ class RockPaperScissors(private val strategyGuide: List<Round>) {
         }
 
     companion object {
-        fun fromInputLines(lines: List<String>) =
+        fun fromInput(lines: List<String>) =
             RockPaperScissors(lines.toStrategyGuide())
 
         private fun List<String>.toStrategyGuide(): List<Round> =
