@@ -7,8 +7,7 @@ object RucksackReorganization {
         rucksacks
             .map { it.toCompartments() }
             .map { it.findCommonItem() }
-            .map { it.computePriority() }
-            .sumOf { it }
+            .sumOf { it.computePriority() }
 
     private fun String.toCompartments(): Pair<Set<Char>, Set<Char>> {
         val middle = length / 2
@@ -22,4 +21,16 @@ object RucksackReorganization {
         first.intersect(second).first()
 
     private fun Char.computePriority() = if (isUpperCase()) this - 'A' + 27 else this - 'a' + 1
+
+    fun computeSumOfPrioritiesOfBadges(rucksacks: List<String>): Int =
+        rucksacks
+            .chunked(3)
+            .map { it.map { it.toSet() } }
+            .map { it.findCommonItem() }
+            .sumOf { it.computePriority() }
+
+
+    private fun List<Set<Char>>.findCommonItem() =
+        reduce { acc, set -> acc.intersect(set) }.first()
+
 }
