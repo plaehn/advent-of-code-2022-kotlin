@@ -10,17 +10,23 @@ data class SupplyStacks(
     private val rearrangementProcedure: List<Instruction>
 ) {
 
-    fun rearrangeAndReturnTopCrates(): String =
+    fun rearrangeAndReturnTopCrates(cratesToMoveMapper: (String) -> String = { it }): String =
         rearrangementProcedure
-            .fold(initialStacks) { stacks, instruction -> stacks.rearrange(instruction) }
+            .fold(initialStacks) { stacks, instruction -> stacks.rearrange(instruction, cratesToMoveMapper) }
             .map { it.firstOrNull() ?: "" }
             .joinToString(separator = "")
 
-    private fun List<String>.rearrange(instruction: Instruction) =
+    private fun List<String>.rearrange(
+        instruction: Instruction,
+        cratesToMoveMapper: (String) -> String
+    ) =
         mapIndexed { idx, stack ->
             when (idx + 1) {
                 instruction.from -> stack.drop(instruction.numberOfCratesToMove)
-                instruction.to -> this[instruction.from - 1].take(instruction.numberOfCratesToMove).reversed() + stack
+                instruction.to -> {
+                    val cratesToMove = this[instruction.from - 1].take(instruction.numberOfCratesToMove)
+                    cratesToMoveMapper(cratesToMove) + stack
+                }
                 else -> stack
             }
         }
