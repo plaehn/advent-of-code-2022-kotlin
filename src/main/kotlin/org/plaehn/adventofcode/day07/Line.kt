@@ -25,4 +25,3 @@ data class File(
 ) : Line {
     override fun toString() = "$size $name"
 }
-

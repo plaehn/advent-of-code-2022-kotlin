@@ -24,6 +24,6 @@ internal class NoSpaceLeftOnDeviceTest {
         val noSpaceLeftOnDevice = NoSpaceLeftOnDevice.fromInput(lines)
         val totalSum = noSpaceLeftOnDevice.computeSumOfTotalSizesOfDirectories(limit = 100000)
 
-        assertThat(totalSum).isEqualTo(1)
+        assertThat(totalSum).isEqualTo(1581595)
     }
 }
