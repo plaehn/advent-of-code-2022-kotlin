@@ -26,4 +26,24 @@ internal class NoSpaceLeftOnDeviceTest {
 
         assertThat(totalSum).isEqualTo(1581595)
     }
+
+    @Test
+    fun `Compute size of directory to delete for test input`() {
+        val lines = this::class.java.readLines("test_input.txt")
+
+        val noSpaceLeftOnDevice = NoSpaceLeftOnDevice.fromInput(lines)
+        val totalSum = noSpaceLeftOnDevice.computeSizeOfDirectoryToDelete()
+
+        assertThat(totalSum).isEqualTo(24933642)
+    }
+
+    @Test
+    fun `Compute size of directory to delete for puzzle input`() {
+        val lines = this::class.java.readLines("puzzle_input.txt")
+
+        val noSpaceLeftOnDevice = NoSpaceLeftOnDevice.fromInput(lines)
+        val totalSum = noSpaceLeftOnDevice.computeSizeOfDirectoryToDelete()
+
+        assertThat(totalSum).isEqualTo(1544176)
+    }
 }

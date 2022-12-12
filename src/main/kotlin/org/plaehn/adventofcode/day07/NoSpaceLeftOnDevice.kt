@@ -10,6 +10,21 @@ class NoSpaceLeftOnDevice(private val lines: List<Line>) {
             .filter { it <= limit }
             .sum()
 
+    fun computeSizeOfDirectoryToDelete(): Int {
+        val root = buildTree(lines)
+
+        val available = 70000000
+        val used = root.totalSize()
+        val unused = available - used
+        val minimumToDelete = 30000000 - unused
+
+        return root
+            .filter { it.isDir }
+            .map { it.totalSize() }
+            .sorted()
+            .first { it >= minimumToDelete }
+    }
+
     private fun buildTree(lines: List<Line>): Node {
         require(lines.first() == ChangeDir("/"))
         val root = Node("/", isDir = true)
