@@ -27,4 +27,23 @@ internal class TreetopTreeHouseTest {
         assertThat(count).isEqualTo(1796)
     }
 
+    @Test
+    fun `Compute scenic score for test input`() {
+        val lines = this::class.java.readLines("test_input.txt")
+
+        val treetopTreeHouse = TreetopTreeHouse.fromInput(lines)
+        val scenicScore = treetopTreeHouse.computeScenicScore()
+
+        assertThat(scenicScore).isEqualTo(8)
+    }
+
+    @Test
+    fun `Compute scenic score for puzzle input`() {
+        val lines = this::class.java.readLines("puzzle_input.txt")
+
+        val treetopTreeHouse = TreetopTreeHouse.fromInput(lines)
+        val scenicScore = treetopTreeHouse.computeScenicScore()
+
+        assertThat(scenicScore).isEqualTo(288120)
+    }
 }
