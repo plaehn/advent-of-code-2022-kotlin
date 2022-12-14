@@ -5,33 +5,25 @@ import kotlin.math.absoluteValue
 import kotlin.math.sign
 
 
-class RopeBridge(private val motions: List<Motion>, numberOfKnots: Int) {
-
-    private var knots = List(numberOfKnots) { Coord(0, 0) }
-    private val touchedByTail = mutableSetOf<Coord>()
+class RopeBridge(private val motions: List<Motion>, private val numberOfKnots: Int) {
 
     fun countPositionsTailTouched(): Int {
+        val knots = MutableList(numberOfKnots) { Coord(0, 0) }
+        val touchedByTail = mutableSetOf<Coord>()
+
         motions.forEach { motion ->
-            motion.perform()
+            motion.perform(knots, touchedByTail)
         }
 
         return touchedByTail.size
     }
 
-    private fun Motion.perform() {
+    private fun Motion.perform(knots: MutableList<Coord>, touchedByTail: MutableSet<Coord>) {
         repeat(steps) {
-            val newHead = knots.first() + direction.offset
-            var head = newHead
-            val newTails = knots
-                .drop(1)
-                .map { tail ->
-                    val newTail = tail + computeTailOffset(head, tail)
-                    head = newTail
-                    newTail
-                }
-
-            knots = listOf(newHead) + newTails
-
+            knots.forEachIndexed { idx, knot ->
+                val offset = if (idx == 0) direction.offset else computeTailOffset(knots[idx - 1], knot)
+                knots[idx] += offset
+            }
             touchedByTail.add(knots.last())
         }
     }
