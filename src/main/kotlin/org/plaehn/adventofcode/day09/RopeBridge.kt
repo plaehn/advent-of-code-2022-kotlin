@@ -31,12 +31,11 @@ class RopeBridge(private val motions: List<Motion>) {
         val dX = head.x - tail.x
         val dY = head.y - tail.y
 
-        val diagonalMove = dX.absoluteValue > 1 || dY.absoluteValue > 1
-
-        val offsetX = if (diagonalMove || dX.absoluteValue > 1) dX.sign else 0
-        val offsetY = if (diagonalMove || dY.absoluteValue > 1) dY.sign else 0
-
-        return Coord(offsetX, offsetY)
+        return if (dX.absoluteValue > 1 || dY.absoluteValue > 1) {
+            Coord(dX.sign, dY.sign)
+        } else {
+            Coord(0, 0)
+        }
     }
 
     companion object {
