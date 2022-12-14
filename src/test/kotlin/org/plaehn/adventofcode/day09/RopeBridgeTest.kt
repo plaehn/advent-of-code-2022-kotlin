@@ -34,7 +34,17 @@ internal class RopeBridgeTest {
         val ropeBridge = RopeBridge.fromInput(lines, 10)
         val count = ropeBridge.countPositionsTailTouched()
 
-        assertThat(count).isEqualTo(13)
+        assertThat(count).isEqualTo(1)
+    }
+
+    @Test
+    fun `Count positions tail touched for 10 knots for large test input`() {
+        val lines = this::class.java.readLines("test_large_input.txt")
+
+        val ropeBridge = RopeBridge.fromInput(lines, 10)
+        val count = ropeBridge.countPositionsTailTouched()
+
+        assertThat(count).isEqualTo(36)
     }
 
     @Test
@@ -44,6 +54,6 @@ internal class RopeBridgeTest {
         val ropeBridge = RopeBridge.fromInput(lines, 10)
         val count = ropeBridge.countPositionsTailTouched()
 
-        assertThat(count).isEqualTo(6236)
+        assertThat(count).isEqualTo(2449)
     }
 }

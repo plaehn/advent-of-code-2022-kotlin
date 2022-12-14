@@ -20,12 +20,17 @@ class RopeBridge(private val motions: List<Motion>, numberOfKnots: Int) {
 
     private fun Motion.perform() {
         repeat(steps) {
-            knots = listOf(knots.first() + direction.offset) + knots.drop(1)
-            knots = listOf(knots.first()) + knots
-                .zipWithNext()
-                .map { (head, tail) ->
-                    tail + computeTailOffset(head, tail)
+            val newHead = knots.first() + direction.offset
+            var head = newHead
+            val newTails = knots
+                .drop(1)
+                .map { tail ->
+                    val newTail = tail + computeTailOffset(head, tail)
+                    head = newTail
+                    newTail
                 }
+
+            knots = listOf(newHead) + newTails
 
             touchedByTail.add(knots.last())
         }
