@@ -5,29 +5,33 @@ import kotlin.math.absoluteValue
 import kotlin.math.sign
 
 
-class RopeBridge(private val motions: List<Motion>) {
+class RopeBridge(private val motions: List<Motion>, numberOfKnots: Int) {
 
-    private var head = Coord(0, 0)
-    private var tail = Coord(0, 0)
-    private val touched = mutableSetOf<Coord>()
+    private var knots = List(numberOfKnots) { Coord(0, 0) }
+    private val touchedByTail = mutableSetOf<Coord>()
 
     fun countPositionsTailTouched(): Int {
         motions.forEach { motion ->
             motion.perform()
         }
 
-        return touched.size
+        return touchedByTail.size
     }
 
     private fun Motion.perform() {
         repeat(steps) {
-            head += direction.offset
-            tail += computeTailOffset()
-            touched.add(tail)
+            knots = listOf(knots.first() + direction.offset) + knots.drop(1)
+            knots = listOf(knots.first()) + knots
+                .zipWithNext()
+                .map { (head, tail) ->
+                    tail + computeTailOffset(head, tail)
+                }
+
+            touchedByTail.add(knots.last())
         }
     }
 
-    private fun computeTailOffset(): Coord {
+    private fun computeTailOffset(head: Coord, tail: Coord): Coord {
         val dX = head.x - tail.x
         val dY = head.y - tail.y
 
@@ -39,8 +43,8 @@ class RopeBridge(private val motions: List<Motion>) {
     }
 
     companion object {
-        fun fromInput(input: List<String>) =
-            RopeBridge(input.map { Motion.fromInput(it) })
+        fun fromInput(input: List<String>, numberOfKnots: Int) =
+            RopeBridge(input.map { Motion.fromInput(it) }, numberOfKnots)
     }
 }
 
