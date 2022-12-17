@@ -3,6 +3,24 @@ package org.plaehn.adventofcode.day10
 
 class CathodeRayTube(private val instructions: List<Instruction>) {
 
+    fun drawCrtImage(): String {
+        var image = ""
+        var x = 1
+        var cycle = 0
+
+        instructions.forEach { instruction ->
+            repeat(instruction.cycles) {
+                image += if (cycle % 40 in (x - 1..x + 1)) '#' else '.'
+                ++cycle
+                if (cycle % 40 == 0) {
+                    image += "\n"
+                }
+            }
+            x += instruction.amount
+        }
+        return image.trim()
+    }
+
     fun computeSumOfSignalStrength() =
         sequence {
             var x = 1
@@ -37,6 +55,6 @@ class CathodeRayTube(private val instructions: List<Instruction>) {
 }
 
 data class Instruction(
-    val amount: Int = 0,
-    val cycles: Int = 1
+    val amount: Int,
+    val cycles: Int
 )
