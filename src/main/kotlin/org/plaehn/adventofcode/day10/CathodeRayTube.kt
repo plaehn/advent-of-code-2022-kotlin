@@ -4,40 +4,35 @@ package org.plaehn.adventofcode.day10
 class CathodeRayTube(private val instructions: List<Instruction>) {
 
     fun drawCrtImage(): String =
-        processInstructions("") { cycle, x, image ->
-            image + drawPixel(cycle, x) + optionallyDrawLinefeed(cycle)
+        processInstructions("") { state: State<String> ->
+            state.output + drawPixel(state) + optionallyDrawLinefeed(state.cycle)
         }.trim()
 
-    private fun drawPixel(cycle: Int, x: Int) =
-        if ((cycle - 1) % 40 in (x - 1..x + 1)) '#' else '.'
+    private fun drawPixel(state: State<String>) =
+        if ((state.cycle - 1) % 40 in (state.x - 1..state.x + 1)) '#' else '.'
 
     private fun optionallyDrawLinefeed(cycle: Int) =
         if (cycle % 40 == 0) "\n" else ""
 
     fun computeSumOfSignalStrength(): Int =
-        processInstructions(0) { cycle, x, sum ->
-            sum + if (cycle.isInterestingSignal()) cycle * x else 0
+        processInstructions(0) { state: State<Int> ->
+            state.output + if (state.cycle.isInterestingSignal()) state.cycle * state.x else 0
         }
 
     private fun Int.isInterestingSignal() = this in listOf(20, 60, 100, 140, 180, 220)
 
     private fun <T> processInstructions(
         initialValue: T,
-        processCycle: (Int, Int, T) -> T
-    ): T {
-        var output: T = initialValue
-        var x = 1
-        var cycle = 0
-
-        instructions.forEach { instruction ->
+        processCycle: (State<T>) -> T
+    ): T =
+        instructions.fold(State(0, 1, initialValue)) { state, instruction ->
+            var newState = state
             repeat(instruction.cycles) {
-                ++cycle
-                output = processCycle(cycle, x, output)
+                newState = newState.nextCycle()
+                newState = newState.newOutput(processCycle(newState))
             }
-            x += instruction.amount
-        }
-        return output
-    }
+            newState.addToRegister(instruction.amount)
+        }.output
 
     companion object {
         fun fromInput(input: List<String>): CathodeRayTube = CathodeRayTube(input.map { it.toInstruction() })
@@ -58,3 +53,15 @@ data class Instruction(
     val amount: Int,
     val cycles: Int
 )
+
+data class State<T>(
+    val cycle: Int,
+    val x: Int,
+    val output: T
+) {
+    fun nextCycle(): State<T> = copy(cycle = cycle + 1)
+
+    fun newOutput(newOutput: T): State<T> = copy(output = newOutput)
+
+    fun addToRegister(amount: Int): State<T> = copy(x = x + amount)
+}
