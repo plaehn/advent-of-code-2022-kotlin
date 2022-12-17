@@ -5,22 +5,21 @@ class CathodeRayTube(private val instructions: List<Instruction>) {
 
     fun drawCrtImage(): String =
         processInstructions("") { cycle, x, image ->
-            var newImage = image
-            newImage += if ((cycle - 1) % 40 in (x - 1..x + 1)) '#' else '.'
-            if (cycle % 40 == 0) {
-                newImage += "\n"
-            }
-            newImage
+            image + drawPixel(cycle, x) + optionallyDrawLinefeed(cycle)
         }.trim()
+
+    private fun drawPixel(cycle: Int, x: Int) =
+        if ((cycle - 1) % 40 in (x - 1..x + 1)) '#' else '.'
+
+    private fun optionallyDrawLinefeed(cycle: Int) =
+        if (cycle % 40 == 0) "\n" else ""
 
     fun computeSumOfSignalStrength(): Int =
         processInstructions(0) { cycle, x, sum ->
-            sum + if (cycle.isInterestingSignal()) {
-                cycle * x
-            } else {
-                0
-            }
+            sum + if (cycle.isInterestingSignal()) cycle * x else 0
         }
+
+    private fun Int.isInterestingSignal() = this in listOf(20, 60, 100, 140, 180, 220)
 
     private fun <T> processInstructions(
         initialValue: T,
@@ -39,8 +38,6 @@ class CathodeRayTube(private val instructions: List<Instruction>) {
         }
         return output
     }
-
-    private fun Int.isInterestingSignal() = this in listOf(20, 60, 100, 140, 180, 220)
 
     companion object {
         fun fromInput(input: List<String>): CathodeRayTube = CathodeRayTube(input.map { it.toInstruction() })
