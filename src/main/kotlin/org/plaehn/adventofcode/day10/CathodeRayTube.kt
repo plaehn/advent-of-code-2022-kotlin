@@ -26,13 +26,17 @@ class CathodeRayTube(private val instructions: List<Instruction>) {
         processCycle: (State<T>) -> T
     ): T =
         instructions.fold(State(0, 1, initialValue)) { state, instruction ->
-            var newState = state
-            repeat(instruction.cycles) {
-                newState = newState.nextCycle()
-                newState = newState.newOutput(processCycle(newState))
-            }
-            newState.addToRegister(instruction.amount)
+            computeNewState(state, instruction, processCycle)
         }.output
+
+    private fun <T> computeNewState(
+        state: State<T>,
+        instruction: Instruction,
+        createNewOutput: (State<T>) -> T
+    ): State<T> =
+        (1..instruction.cycles).fold(state) { newState, _ ->
+            newState.nextCycle().run { newOutput(createNewOutput(this)) }
+        }.addToRegister(instruction.amount)
 
     companion object {
         fun fromInput(input: List<String>): CathodeRayTube = CathodeRayTube(input.map { it.toInstruction() })
