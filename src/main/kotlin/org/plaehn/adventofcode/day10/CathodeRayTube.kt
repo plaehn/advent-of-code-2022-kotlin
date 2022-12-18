@@ -4,18 +4,22 @@ package org.plaehn.adventofcode.day10
 class CathodeRayTube(private val instructions: List<Instruction>) {
 
     fun drawCrtImage(): String =
-        processInstructions("") { state: State<String> ->
+        processInstructions(initialValue = "") { state: State<String> ->
             state.output + drawPixel(state) + optionallyDrawLinefeed(state.cycle)
         }.trim()
 
     private fun drawPixel(state: State<String>) =
-        if ((state.cycle - 1) % 40 in (state.x - 1..state.x + 1)) '#' else '.'
+        if (drawPosition(state) in spritePosition(state)) '#' else '.'
+
+    private fun drawPosition(state: State<String>) = (state.cycle - 1) % 40
+
+    private fun spritePosition(state: State<String>) = state.x - 1..state.x + 1
 
     private fun optionallyDrawLinefeed(cycle: Int) =
         if (cycle % 40 == 0) "\n" else ""
 
     fun computeSumOfSignalStrength(): Int =
-        processInstructions(0) { state: State<Int> ->
+        processInstructions(initialValue = 0) { state: State<Int> ->
             state.output + if (state.cycle.isInterestingSignal()) state.cycle * state.x else 0
         }
 
