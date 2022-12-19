@@ -6,7 +6,7 @@ import org.plaehn.adventofcode.common.product
 
 class MonkeyInTheMiddle(private val monkeys: MutableList<Monkey>) {
 
-    fun computeMonkeyBusinessLevel(): Int {
+    fun computeMonkeyBusinessLevel(): Long {
         repeat(20) {
             playRound()
         }
@@ -38,12 +38,12 @@ class MonkeyInTheMiddle(private val monkeys: MutableList<Monkey>) {
 
 data class Monkey(
     val number: Int,
-    val worryLevels: ArrayDeque<Int>,
-    val operation: (Int) -> Int,
-    val test: (Int) -> Boolean,
+    val worryLevels: ArrayDeque<Long>,
+    val operation: (Long) -> Long,
+    val test: (Long) -> Boolean,
     val testTrueMonkey: Int,
     val testFalseMonkey: Int,
-    var numberOfInspections: Int = 0
+    var numberOfInspections: Long = 0
 ) {
     companion object {
         fun fromInput(input: String): Monkey {
@@ -63,35 +63,35 @@ data class Monkey(
         private fun String.toNumber() = substringAfter(' ').trimEnd(':').toInt()
 
         private fun String.toWorryLevels() =
-            ArrayDeque<Int>().apply { addAll(substringAfter(':').split(',').map { it.trim().toInt() }) }
+            ArrayDeque<Long>().apply { addAll(substringAfter(':').split(',').map { it.trim().toLong() }) }
 
-        private fun String.toOperation(): (Int) -> Int {
+        private fun String.toOperation(): (Long) -> Long {
             val (lhs, operand, rhs) = substringAfter("Operation: new = ").split(' ')
             return when (operand) {
-                "*" -> toOperation(Int::times, lhs, rhs)
-                "+" -> toOperation(Int::plus, lhs, rhs)
+                "*" -> toOperation(Long::times, lhs, rhs)
+                "+" -> toOperation(Long::plus, lhs, rhs)
                 else -> throw IllegalArgumentException("Unhandled operand: $operand")
             }
         }
 
         private fun toOperation(
-            operator: (Int, Int) -> Int,
+            operator: (Long, Long) -> Long,
             lhs: String,
             rhs: String
-        ): (Int) -> Int =
+        ): (Long) -> Long =
             if (lhs == "old" && rhs == "old") {
                 { old -> operator(old, old) }
             } else if (lhs == "old") {
-                { old -> operator(old, rhs.toInt()) }
+                { old -> operator(old, rhs.toLong()) }
             } else if (rhs == "old") {
-                { old -> operator(old, lhs.toInt()) }
+                { old -> operator(old, lhs.toLong()) }
             } else {
-                { operator(lhs.toInt(), rhs.toInt()) }
+                { operator(lhs.toLong(), rhs.toLong()) }
             }
 
-        private fun String.toTest(): (Int) -> Boolean {
-            val divisor = substringAfter("divisible by ").toInt()
-            return { it % divisor == 0 }
+        private fun String.toTest(): (Long) -> Boolean {
+            val divisor = substringAfter("divisible by ").toLong()
+            return { it % divisor == 0L }
         }
 
         private fun String.toThrowToMonkey() = substringAfter("throw to monkey ").toInt()
