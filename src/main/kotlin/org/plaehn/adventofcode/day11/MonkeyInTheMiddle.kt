@@ -1,33 +1,50 @@
 package org.plaehn.adventofcode.day11
 
 import org.plaehn.adventofcode.common.groupByBlankLines
+import org.plaehn.adventofcode.common.product
 
 
-class MonkeyInTheMiddle(private val monkeys: List<Monkey>) {
+class MonkeyInTheMiddle(private val monkeys: MutableList<Monkey>) {
 
     fun computeMonkeyBusinessLevel(): Int {
-        println(monkeys)
-        println(monkeys[1].operation(3).toString() + "== 9?")
-        println(monkeys[2].operation(4).toString() + "== 16?")
-        println(monkeys[0].test(22).toString() + "== false?")
-        println(monkeys[0].test(23).toString() + "== true?")
-        println(monkeys[0].test(24).toString() + "== false?")
-        TODO()
+        repeat(20) {
+            playRound()
+        }
+        return monkeys
+            .map { it.numberOfInspections }
+            .sortedByDescending { it }
+            .take(2)
+            .product()
+    }
+
+    private fun playRound() {
+        monkeys.forEach { monkey ->
+            monkey.numberOfInspections += monkey.worryLevels.size
+            while (monkey.worryLevels.isNotEmpty()) {
+                var worryLevel = monkey.worryLevels.removeFirst()
+                worryLevel = monkey.operation(worryLevel)
+                worryLevel /= 3
+                val monkeyToThrowTo = if (monkey.test(worryLevel)) monkey.testTrueMonkey else monkey.testFalseMonkey
+
+                monkeys[monkeyToThrowTo].worryLevels.addLast(worryLevel)
+            }
+        }
     }
 
     companion object {
         fun fromInput(input: String) =
-            MonkeyInTheMiddle(input.groupByBlankLines().map { Monkey.fromInput(it) })
+            MonkeyInTheMiddle(input.groupByBlankLines().map { Monkey.fromInput(it) }.toMutableList())
     }
 }
 
 data class Monkey(
     val number: Int,
-    val worryLevels: List<Int>,
+    val worryLevels: ArrayDeque<Int>,
     val operation: (Int) -> Int,
     val test: (Int) -> Boolean,
     val testTrueMonkey: Int,
-    val testFalseMonkey: Int
+    val testFalseMonkey: Int,
+    var numberOfInspections: Int = 0
 ) {
     companion object {
         fun fromInput(input: String): Monkey {
@@ -46,7 +63,8 @@ data class Monkey(
 
         private fun String.toNumber() = substringAfter(' ').trimEnd(':').toInt()
 
-        private fun String.toWorryLevels() = substringAfter(':').split(',').map { it.trim().toInt() }
+        private fun String.toWorryLevels() =
+            ArrayDeque<Int>().apply { addAll(substringAfter(':').split(',').map { it.trim().toInt() }) }
 
         private fun String.toOperation(): (Int) -> Int {
             val (lhs, operand, rhs) = substringAfter("Operation: new = ").split(' ')

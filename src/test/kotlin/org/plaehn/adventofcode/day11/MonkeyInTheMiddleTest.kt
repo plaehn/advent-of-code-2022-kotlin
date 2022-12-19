@@ -24,6 +24,6 @@ internal class MonkeyInTheMiddleTest {
         val monkeyInTheMiddle = MonkeyInTheMiddle.fromInput(input)
         val level = monkeyInTheMiddle.computeMonkeyBusinessLevel()
 
-        assertThat(level).isEqualTo(0)
+        assertThat(level).isEqualTo(118674)
     }
 }
