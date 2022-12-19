@@ -6,9 +6,17 @@ import org.plaehn.adventofcode.common.product
 
 class MonkeyInTheMiddle(private val monkeys: MutableList<Monkey>) {
 
-    fun computeMonkeyBusinessLevel(): Long {
-        repeat(20) {
-            playRound()
+    fun part1() = computeMonkeyBusinessLevel(numberOfRounds = 20) { it / 3 }
+
+    fun part2(): Long {
+        // Cf. https://todd.ginsberg.com/post/advent-of-code/2022/day11/ for an explanation
+        val testDivisorProduct = monkeys.map { it.testDivisor }.product()
+        return computeMonkeyBusinessLevel(numberOfRounds = 10000) { it % testDivisorProduct }
+    }
+
+    private fun computeMonkeyBusinessLevel(numberOfRounds: Int, changeWorryLevel: (Long) -> Long): Long {
+        repeat(numberOfRounds) {
+            playRound(changeWorryLevel)
         }
         return monkeys
             .map { it.numberOfInspections }
@@ -17,15 +25,15 @@ class MonkeyInTheMiddle(private val monkeys: MutableList<Monkey>) {
             .product()
     }
 
-    private fun playRound() {
-        monkeys.forEach { monkey -> monkey.takeTurn() }
+    private fun playRound(changeWorryLevel: (Long) -> Long) {
+        monkeys.forEach { monkey -> monkey.takeTurn(changeWorryLevel) }
     }
 
-    private fun Monkey.takeTurn() {
+    private fun Monkey.takeTurn(changeWorryLevel: (Long) -> Long) {
         numberOfInspections += worryLevels.size
         while (worryLevels.isNotEmpty()) {
-            val worryLevel = operation(worryLevels.removeFirst()) / 3
-            val monkeyToThrowTo = if (test(worryLevel)) testTrueMonkey else testFalseMonkey
+            val worryLevel = changeWorryLevel(operation(worryLevels.removeFirst()))
+            val monkeyToThrowTo = if (worryLevel % testDivisor == 0L) testTrueMonkey else testFalseMonkey
             monkeys[monkeyToThrowTo].worryLevels.addLast(worryLevel)
         }
     }
@@ -40,7 +48,7 @@ data class Monkey(
     val number: Int,
     val worryLevels: ArrayDeque<Long>,
     val operation: (Long) -> Long,
-    val test: (Long) -> Boolean,
+    val testDivisor: Long,
     val testTrueMonkey: Int,
     val testFalseMonkey: Int,
     var numberOfInspections: Long = 0
@@ -54,7 +62,7 @@ data class Monkey(
                 number = lines[0].toNumber(),
                 worryLevels = lines[1].toWorryLevels(),
                 operation = lines[2].toOperation(),
-                test = lines[3].toTest(),
+                testDivisor = lines[3].toTestDivisor(),
                 testTrueMonkey = lines[4].toThrowToMonkey(),
                 testFalseMonkey = lines[5].toThrowToMonkey()
             )
@@ -89,10 +97,7 @@ data class Monkey(
                 { operator(lhs.toLong(), rhs.toLong()) }
             }
 
-        private fun String.toTest(): (Long) -> Boolean {
-            val divisor = substringAfter("divisible by ").toLong()
-            return { it % divisor == 0L }
-        }
+        private fun String.toTestDivisor() = substringAfter("divisible by ").toLong()
 
         private fun String.toThrowToMonkey() = substringAfter("throw to monkey ").toInt()
     }
