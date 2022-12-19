@@ -18,16 +18,15 @@ class MonkeyInTheMiddle(private val monkeys: MutableList<Monkey>) {
     }
 
     private fun playRound() {
-        monkeys.forEach { monkey ->
-            monkey.numberOfInspections += monkey.worryLevels.size
-            while (monkey.worryLevels.isNotEmpty()) {
-                var worryLevel = monkey.worryLevels.removeFirst()
-                worryLevel = monkey.operation(worryLevel)
-                worryLevel /= 3
-                val monkeyToThrowTo = if (monkey.test(worryLevel)) monkey.testTrueMonkey else monkey.testFalseMonkey
+        monkeys.forEach { monkey -> monkey.takeTurn() }
+    }
 
-                monkeys[monkeyToThrowTo].worryLevels.addLast(worryLevel)
-            }
+    private fun Monkey.takeTurn() {
+        numberOfInspections += worryLevels.size
+        while (worryLevels.isNotEmpty()) {
+            val worryLevel = operation(worryLevels.removeFirst()) / 3
+            val monkeyToThrowTo = if (test(worryLevel)) testTrueMonkey else testFalseMonkey
+            monkeys[monkeyToThrowTo].worryLevels.addLast(worryLevel)
         }
     }
 
