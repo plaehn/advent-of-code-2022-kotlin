@@ -14,7 +14,7 @@ fun <N : Any> ValueGraph<N, Int>.shortestPath(start: N, end: N): List<N> {
 }
 
 // Cf. https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
-private fun <N : Any> ValueGraph<N, Int>.computeShortestPathTree(start: N): Map<N, N?> {
+fun <N : Any> ValueGraph<N, Int>.computeShortestPathTree(start: N): Map<N, N?> {
     val visited: MutableSet<N> = mutableSetOf()
 
     val delta = nodes().associateWith { Int.MAX_VALUE }.toMutableMap()

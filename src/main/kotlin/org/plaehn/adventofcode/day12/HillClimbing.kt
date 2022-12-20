@@ -7,36 +7,47 @@ import org.plaehn.adventofcode.common.Matrix
 import org.plaehn.adventofcode.common.shortestPath
 
 
-object HillClimbing {
+class HillClimbing(private val graph: ValueGraph<Node, Int>) {
 
-    fun computeFewestStepToTop(lines: List<String>): Int {
-        val graph = buildGraph(lines)
-        val start = graph.nodes().first { it.value == 'S' }
-        val end = graph.nodes().first { it.value == 'E' }
+    fun computeFewestStepsToTopFromCurrentPosition(): Int {
+        val start = graph.nodes().first { it.value == 'E' }
+        val end = graph.nodes().first { it.value == 'S' }
         return graph.shortestPath(start, end).size - 1
     }
 
-    private fun buildGraph(lines: List<String>): ValueGraph<Node, Int> =
-        ValueGraphBuilder
-            .directed()
-            .expectedNodeCount(lines.size * lines.first().length)
-            .immutable<Node, Int>()
-            .apply {
-                val matrix = Matrix.fromRows(lines.map { it.toList() }, ' ')
+    fun computeFewestStepsToTopFromAnyPositionAtLowestHeight(): Int {
+        val start = graph.nodes().first { it.value == 'S' }
+        //graph.computeShortestPathTree()
+        TODO()
+    }
 
-                matrix.toMap().keys.forEach { coord ->
-                    val node = Node(coord, matrix[coord])
-                    addNode(node)
-                    matrix.neighbors(coord).forEach { neighbor ->
-                        val neighborNode = Node(neighbor, matrix[neighbor])
-                        addNode(neighborNode)
-                        if (neighborNode.height() - node.height() <= 1) {
-                            putEdgeValue(node, neighborNode, 1)
+    companion object {
+        fun fromInput(lines: List<String>) = HillClimbing(buildReverseGraph(lines))
+
+        // We consider the shortest path from end to start in order to be able to solve part 2
+        // with Dijkstra, too
+        private fun buildReverseGraph(lines: List<String>) =
+            ValueGraphBuilder
+                .directed()
+                .expectedNodeCount(lines.size * lines.first().length)
+                .immutable<Node, Int>()
+                .apply {
+                    val matrix = Matrix.fromRows(lines.map { it.toList() }, ' ')
+
+                    matrix.toMap().keys.forEach { coord ->
+                        val node = Node(coord, matrix[coord])
+                        addNode(node)
+                        matrix.neighbors(coord).forEach { neighbor ->
+                            val neighborNode = Node(neighbor, matrix[neighbor])
+                            addNode(neighborNode)
+                            if (node.height() - neighborNode.height() <= 1) {
+                                putEdgeValue(node, neighborNode, 1)
+                            }
                         }
                     }
                 }
-            }
-            .build()
+                .build()
+    }
 
     data class Node(
         val coord: Coord,

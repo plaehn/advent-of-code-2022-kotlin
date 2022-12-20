@@ -9,18 +9,20 @@ internal class HillClimbingTest {
 
     @Test
     fun `Compute fewest steps for test input`() {
-        val input = this::class.java.readLines("test_input.txt")
+        val lines = this::class.java.readLines("test_input.txt")
 
-        val steps = HillClimbing.computeFewestStepToTop(input)
+        val hillClimbing = HillClimbing.fromInput(lines)
+        val steps = hillClimbing.computeFewestStepsToTopFromCurrentPosition()
 
         assertThat(steps).isEqualTo(31)
     }
 
     @Test
     fun `Compute fewest steps for puzzle input`() {
-        val input = this::class.java.readLines("puzzle_input.txt")
+        val lines = this::class.java.readLines("puzzle_input.txt")
 
-        val steps = HillClimbing.computeFewestStepToTop(input)
+        val hillClimbing = HillClimbing.fromInput(lines)
+        val steps = hillClimbing.computeFewestStepsToTopFromCurrentPosition()
 
         assertThat(steps).isEqualTo(437)
     }
