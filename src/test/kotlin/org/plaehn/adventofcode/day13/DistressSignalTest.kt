@@ -24,6 +24,6 @@ internal class DistressSignalTest {
         val distressSignal = DistressSignal.fromInput(input)
         val solution = distressSignal.solvePart1()
 
-        assertThat(solution).isEqualTo(1)
+        assertThat(solution).isEqualTo(5882)
     }
 }

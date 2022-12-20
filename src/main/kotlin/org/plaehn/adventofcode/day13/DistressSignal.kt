@@ -5,10 +5,11 @@ import org.plaehn.adventofcode.common.groupByBlankLines
 
 class DistressSignal(private val signal: List<Pair<Element, Element>>) {
 
-    fun solvePart1(): Int {
-        println(signal.joinToString("\n"))
-        TODO()
-    }
+    fun solvePart1() =
+        signal
+            .mapIndexed { index, pair -> (index + 1) to (pair.first < pair.second) }
+            .filter { it.second }
+            .sumOf { it.first }
 
     companion object {
         fun fromInput(input: String) =
@@ -57,7 +58,22 @@ class DistressSignal(private val signal: List<Pair<Element, Element>>) {
     }
 }
 
-sealed interface Element
+
+sealed interface Element {
+
+    operator fun compareTo(other: Element): Int {
+        val cmp = if (this is IntElement && other is IntElement) {
+            value - other.value
+        } else if (this is ListElement && other is ListElement) {
+            this.compare(other)
+        } else if (this is IntElement) {
+            ListElement(listOf(this)).compare(other as ListElement)
+        } else {
+            (this as ListElement).compare(ListElement(listOf(other)))
+        }
+        return cmp
+    }
+}
 
 data class IntElement(val value: Int) : Element {
     override fun toString() = value.toString()
@@ -65,4 +81,12 @@ data class IntElement(val value: Int) : Element {
 
 data class ListElement(val children: List<Element>) : Element {
     override fun toString() = "[" + children.joinToString(",") + "]"
+
+    fun compare(other: ListElement): Int {
+        children.zip(other.children).forEach { pair ->
+            val cmp = pair.first.compareTo(pair.second)
+            if (cmp != 0) return cmp
+        }
+        return children.size - other.children.size
+    }
 }
