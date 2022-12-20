@@ -5,6 +5,7 @@ import com.google.common.graph.ValueGraphBuilder
 import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.Matrix
 import org.plaehn.adventofcode.common.shortestPath
+import org.plaehn.adventofcode.common.shortestPaths
 
 
 class HillClimbing(private val graph: ValueGraph<Node, Int>) {
@@ -16,9 +17,9 @@ class HillClimbing(private val graph: ValueGraph<Node, Int>) {
     }
 
     fun computeFewestStepsToTopFromAnyPositionAtLowestHeight(): Int {
-        val start = graph.nodes().first { it.value == 'S' }
-        //graph.computeShortestPathTree()
-        TODO()
+        val start = graph.nodes().first { it.value == 'E' }
+        val shortestPaths = graph.shortestPaths(start) { it.height() == 0 }
+        return shortestPaths.minOf { it.size } - 1
     }
 
     companion object {

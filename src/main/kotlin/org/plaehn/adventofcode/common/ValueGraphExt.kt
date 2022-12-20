@@ -2,7 +2,10 @@ package org.plaehn.adventofcode.common
 
 import com.google.common.graph.ValueGraph
 
-fun <N : Any> ValueGraph<N, Int>.shortestPath(start: N, end: N): List<N> {
+fun <N : Any> ValueGraph<N, Int>.shortestPath(start: N, end: N): List<N> =
+    shortestPaths(start) { it == end }.first()
+
+fun <N : Any> ValueGraph<N, Int>.shortestPaths(start: N, endNodePredicate: (N) -> Boolean): List<List<N>> {
     val shortestPathTree = computeShortestPathTree(start)
 
     fun pathTo(start: N, end: N): List<N> {
@@ -10,11 +13,14 @@ fun <N : Any> ValueGraph<N, Int>.shortestPath(start: N, end: N): List<N> {
         return listOf(pathTo(start, shortestPathTree[end]!!), listOf(end)).flatten()
     }
 
-    return pathTo(start, end)
+    return nodes()
+        .filter(endNodePredicate)
+        .map { pathTo(start, it) }
+        .filter { it.first() == start }
 }
 
 // Cf. https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
-fun <N : Any> ValueGraph<N, Int>.computeShortestPathTree(start: N): Map<N, N?> {
+private fun <N : Any> ValueGraph<N, Int>.computeShortestPathTree(start: N): Map<N, N?> {
     val visited: MutableSet<N> = mutableSetOf()
 
     val delta = nodes().associateWith { Int.MAX_VALUE }.toMutableMap()
