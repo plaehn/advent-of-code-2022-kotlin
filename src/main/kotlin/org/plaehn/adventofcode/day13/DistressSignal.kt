@@ -1,6 +1,7 @@
 package org.plaehn.adventofcode.day13
 
 import org.plaehn.adventofcode.common.groupByBlankLines
+import org.plaehn.adventofcode.common.product
 
 
 class DistressSignal(private val signal: List<Pair<Element, Element>>) {
@@ -11,7 +12,16 @@ class DistressSignal(private val signal: List<Pair<Element, Element>>) {
             .filter { it.second }
             .sumOf { it.first }
 
+    fun solvePart2() =
+        (dividerPackets + signal.flatMap { it.toList() })
+            .sortedBy { it }
+            .mapIndexed { index, element -> if (element in dividerPackets) index + 1 else 1 }
+            .product()
+
     companion object {
+
+        val dividerPackets = setOf("[[2]]".toElement(), "[[6]]".toElement())
+
         fun fromInput(input: String) =
             DistressSignal(
                 input
@@ -59,9 +69,9 @@ class DistressSignal(private val signal: List<Pair<Element, Element>>) {
 }
 
 
-sealed interface Element {
+sealed interface Element : Comparable<Element> {
 
-    operator fun compareTo(other: Element): Int {
+    override operator fun compareTo(other: Element): Int {
         val cmp = if (this is IntElement && other is IntElement) {
             value - other.value
         } else if (this is ListElement && other is ListElement) {
