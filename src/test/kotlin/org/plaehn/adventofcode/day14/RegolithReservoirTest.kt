@@ -12,7 +12,7 @@ internal class RegolithReservoirTest {
         val input = this::class.java.readLines("test_input.txt")
 
         val reservoir = RegolithReservoir.fromInput(input)
-        val count = reservoir.countUnitOfSands()
+        val count = reservoir.countUnitOfSands(withFloor = false)
 
         assertThat(count).isEqualTo(24)
     }
@@ -22,8 +22,28 @@ internal class RegolithReservoirTest {
         val input = this::class.java.readLines("puzzle_input.txt")
 
         val reservoir = RegolithReservoir.fromInput(input)
-        val count = reservoir.countUnitOfSands()
+        val count = reservoir.countUnitOfSands(withFloor = false)
 
         assertThat(count).isEqualTo(1513)
+    }
+
+    @Test
+    fun `Count unit of sands with floor for test input`() {
+        val input = this::class.java.readLines("test_input.txt")
+
+        val reservoir = RegolithReservoir.fromInput(input)
+        val count = reservoir.countUnitOfSands(withFloor = true)
+
+        assertThat(count).isEqualTo(93)
+    }
+
+    @Test
+    fun `Count unit of sands with floor for puzzle input`() {
+        val input = this::class.java.readLines("puzzle_input.txt")
+
+        val reservoir = RegolithReservoir.fromInput(input)
+        val count = reservoir.countUnitOfSands(withFloor = true)
+
+        assertThat(count).isEqualTo(22646)
     }
 }

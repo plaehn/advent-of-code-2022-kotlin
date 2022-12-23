@@ -9,10 +9,10 @@ import java.lang.Integer.min
 
 class RegolithReservoir(private val paths: List<List<Coord>>) {
 
-    fun countUnitOfSands() = pourSand(buildScan())
+    fun countUnitOfSands(withFloor: Boolean) = pourSand(buildScan(withFloor))
 
-    private fun buildScan(): Matrix<Element> {
-        val (width, height) = computeDimensions(paths)
+    private fun buildScan(withFloor: Boolean): Matrix<Element> {
+        val (width, height) = computeDimensions(paths, withFloor)
         val cave = Matrix.fromDimensions(width, height, AIR)
 
         paths.forEach { path ->
@@ -20,7 +20,24 @@ class RegolithReservoir(private val paths: List<List<Coord>>) {
                 pair.toCoords().forEach { cave[it] = ROCK }
             }
         }
+
+        if (withFloor) {
+            val floor = Coord(0, height - 1) to Coord(width - 1, height - 1)
+            floor.toCoords().forEach { cave[it] = ROCK }
+        }
+
         return cave
+    }
+
+    private fun computeDimensions(paths: List<List<Coord>>, withFloor: Boolean): Pair<Int, Int> {
+        val coords = paths.flatten()
+        var width = 1 + coords.maxOf { it.x }
+        var height = 1 + coords.maxOf { it.y }
+        if (withFloor) {
+            width *= 10
+            height += 2
+        }
+        return width to height
     }
 
     private fun pourSand(cave: Matrix<Element>): Int {
@@ -33,13 +50,15 @@ class RegolithReservoir(private val paths: List<List<Coord>>) {
 
             cave[newPosition] = SAND
             ++units
+
+            if (newPosition == sandStart) break
         } while (true)
 
         return units
     }
 
     private fun computeNewSandPosition(cave: Matrix<Element>): Coord {
-        var position = Coord(500, 0)
+        var position = sandStart
         do {
             val newPosition = directions.firstNotNullOfOrNull { computeNewPosition(cave, position, it) }
             if (newPosition != null) position = newPosition
@@ -58,13 +77,6 @@ class RegolithReservoir(private val paths: List<List<Coord>>) {
         }
     }
 
-    private fun computeDimensions(paths: List<List<Coord>>): Pair<Int, Int> {
-        val coords = paths.flatten()
-        val width = 1 + coords.maxOf { it.x }
-        val height = 1 + coords.maxOf { it.y }
-        return width to height
-    }
-
     private fun Pair<Coord, Coord>.toCoords(): List<Coord> =
         if (first.x == second.x) {
             val start = min(first.y, second.y)
@@ -79,7 +91,7 @@ class RegolithReservoir(private val paths: List<List<Coord>>) {
         }
 
     companion object {
-
+        val sandStart = Coord(500, 0)
         val directions = listOf(Coord(0, 1), Coord(-1, 1), Coord(1, 1))
 
         fun fromInput(lines: List<String>) = RegolithReservoir(lines.map { it.toPath() })
