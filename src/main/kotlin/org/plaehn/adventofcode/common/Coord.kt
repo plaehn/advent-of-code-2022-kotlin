@@ -1,6 +1,7 @@
 package org.plaehn.adventofcode.common
 
 import kotlin.math.absoluteValue
+import kotlin.math.sign
 
 data class Coord(val x: Int, val y: Int, val z: Int = 0) {
 
@@ -16,6 +17,13 @@ data class Coord(val x: Int, val y: Int, val z: Int = 0) {
 
     fun manhattanDistanceTo(other: Coord) =
         (x - other.x).absoluteValue + (y - other.y).absoluteValue + (z - other.z).absoluteValue
+
+    fun lineTo(other: Coord): List<Coord> {
+        val xDelta = (other.x - x).sign
+        val yDelta = (other.y - y).sign
+        val steps = maxOf((x - other.x).absoluteValue, (y - other.y).absoluteValue)
+        return (1..steps).scan(this) { last, _ -> Coord(last.x + xDelta, last.y + yDelta) }
+    }
 
     companion object {
         fun fromString(input: String) =
