@@ -32,7 +32,7 @@ internal class BeaconExclusionZoneTest {
         val input = this::class.java.readLines("test_input.txt")
 
         val beaconExclusionZone = BeaconExclusionZone.fromInput(input)
-        val frequency = beaconExclusionZone.computeTuningFrequency(20)
+        val frequency = beaconExclusionZone.computeTuningFrequency(caveSize = 20)
 
         assertThat(frequency).isEqualTo(56000011)
     }
@@ -42,7 +42,7 @@ internal class BeaconExclusionZoneTest {
         val input = this::class.java.readLines("puzzle_input.txt")
 
         val beaconExclusionZone = BeaconExclusionZone.fromInput(input)
-        val frequency = beaconExclusionZone.computeTuningFrequency(4000000)
+        val frequency = beaconExclusionZone.computeTuningFrequency(caveSize = 4000000)
 
         assertThat(frequency).isEqualTo(10961118625406)
     }
