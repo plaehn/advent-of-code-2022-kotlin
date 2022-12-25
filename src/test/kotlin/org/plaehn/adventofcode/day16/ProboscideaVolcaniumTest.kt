@@ -27,4 +27,24 @@ internal class ProboscideaVolcaniumTest {
         assertThat(maxRelease).isEqualTo(1880)
     }
 
+    @Test
+    fun `Compute maximum pressure release using elephant for test input`() {
+        val input = this::class.java.readLines("test_input.txt")
+
+        val volcano = ProboscideaVolcanium.fromInput(input)
+        val maxRelease = volcano.computeMaximumPressureReleaseUsingElephant()
+
+        assertThat(maxRelease).isEqualTo(1707)
+    }
+
+    @Test
+    fun `Compute maximum pressure release using elephant for puzzle input`() {
+        val input = this::class.java.readLines("puzzle_input.txt")
+
+        val volcano = ProboscideaVolcanium.fromInput(input)
+        val maxRelease = volcano.computeMaximumPressureReleaseUsingElephant()
+
+        assertThat(maxRelease).isEqualTo(2520)
+    }
+
 }

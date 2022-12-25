@@ -1,5 +1,6 @@
 package org.plaehn.adventofcode.day16
 
+import com.github.shiguruikai.combinatoricskt.combinations
 import com.github.shiguruikai.combinatoricskt.permutations
 
 // Cf. https://todd.ginsberg.com/post/advent-of-code/2022/day16/
@@ -44,6 +45,14 @@ class ProboscideaVolcanium(input: List<ValveRoom>) {
 
     fun computeMaximumPressureRelease() = searchPaths("AA", 30)
 
+    fun computeMaximumPressureReleaseUsingElephant() =
+        cheapestPathCosts.keys.filter { it != "AA" }
+            .combinations(cheapestPathCosts.size / 2)
+            .map { it.toSet() }
+            .maxOf { halfOfTheRooms ->
+                searchPaths("AA", 26, halfOfTheRooms) + searchPaths("AA", 26, cheapestPathCosts.keys - halfOfTheRooms)
+            }
+
     private fun searchPaths(
         location: String,
         timeAllowed: Int,
@@ -71,14 +80,6 @@ class ProboscideaVolcanium(input: List<ValveRoom>) {
             ProboscideaVolcanium(input.map { ValveRoom.fromInput(it) })
     }
 }
-
-data class State(
-    val minute: Int,
-    val room: String,
-    val openValves: Set<String>,
-    val pressureReleasedPerMinute: Int,
-    val totalPressureReleased: Int = 0
-)
 
 data class ValveRoom(
     val name: String,
