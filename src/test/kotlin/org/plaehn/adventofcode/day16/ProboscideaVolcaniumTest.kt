@@ -24,7 +24,7 @@ internal class ProboscideaVolcaniumTest {
         val volcano = ProboscideaVolcanium.fromInput(input)
         val maxRelease = volcano.computeMaximumPressureRelease()
 
-        assertThat(maxRelease).isEqualTo(1)
+        assertThat(maxRelease).isEqualTo(1880)
     }
 
 }

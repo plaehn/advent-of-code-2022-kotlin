@@ -1,59 +1,67 @@
 package org.plaehn.adventofcode.day16
 
-import java.lang.Integer.max
+import com.github.shiguruikai.combinatoricskt.permutations
 
 
-class ProboscideaVolcanium(rooms: List<Room>) {
+class ProboscideaVolcanium(private val rooms: List<ValveRoom>) {
 
-    private val roomByValve: Map<String, Room> = rooms.associateBy { it.valve }
+    private val roomsByName: Map<String, ValveRoom> = rooms.associateBy { it.name }
 
-    fun computeMaximumPressureRelease() =
-        computeMaximumPressureRelease(
-            current = State(minute = 0, room = "AA", openValves = emptySet(), pressureReleasedPerMinute = 0),
-            seen = mutableMapOf()
-        )
+    private val cheapestPathCosts: Map<String, Map<String, Int>> = calculateShortestPaths()
 
-    private fun computeMaximumPressureRelease(current: State, seen: MutableMap<State, Int>): Int {
-        if (current.minute == 30) return current.totalPressureReleased
-        if (current in seen) return seen[current]!!
+    fun computeMaximumPressureRelease() = searchPaths("AA", 30)
 
-        val openValveFlowRate = roomByValve[current.room]!!.flowRate
-        val openValveMax = if (openValveFlowRate > 0 && current.room !in current.openValves) {
-            computeMaximumPressureRelease(
-                current = State(
-                    minute = current.minute + 1,
-                    room = current.room,
-                    openValves = current.openValves + current.room,
-                    pressureReleasedPerMinute = current.pressureReleasedPerMinute + openValveFlowRate,
-                    totalPressureReleased = current.totalPressureReleased + current.pressureReleasedPerMinute
-                ),
-                seen
+    private fun searchPaths(
+        location: String,
+        timeAllowed: Int,
+        seen: Set<String> = emptySet(),
+        timeTaken: Int = 0,
+        totalFlow: Int = 0
+    ): Int = cheapestPathCosts
+        .getValue(location)
+        .asSequence()
+        .filterNot { (nextRoom, _) -> nextRoom in seen }
+        .filter { (_, traversalCost) -> timeTaken + traversalCost + 1 < timeAllowed }
+        .maxOfOrNull { (nextRoom, traversalCost) ->
+            searchPaths(
+                nextRoom,
+                timeAllowed,
+                seen + nextRoom,
+                timeTaken + traversalCost + 1,
+                totalFlow + ((timeAllowed - timeTaken - traversalCost - 1) * roomsByName.getValue(nextRoom).flowRate)
             )
-        } else {
-            0
-        }
+        } ?: totalFlow
 
-        val neighborMax = roomByValve[current.room]!!.neighbors.maxOf { neighbor ->
-            computeMaximumPressureRelease(
-                current = State(
-                    minute = current.minute + 1,
-                    room = neighbor,
-                    openValves = current.openValves,
-                    pressureReleasedPerMinute = current.pressureReleasedPerMinute,
-                    totalPressureReleased = current.totalPressureReleased + current.pressureReleasedPerMinute
-                ),
-                seen
+
+    private fun calculateShortestPaths(): Map<String, Map<String, Int>> {
+        val shortestPaths: MutableMap<String, MutableMap<String, Int>> = roomsByName.values.associate {
+            it.name to it.neighbors.associateWith { 1 }.toMutableMap()
+        }.toMutableMap()
+
+        shortestPaths.keys.permutations(3).forEach { (waypoint, from, to) ->
+            shortestPaths[from, to] = minOf(
+                shortestPaths[from, to], // Existing Path
+                shortestPaths[from, waypoint] + shortestPaths[waypoint, to] // New Path
             )
         }
-        val maximumPressureReleased = max(openValveMax, neighborMax)
-        seen[current] = maximumPressureReleased
-
-        return maximumPressureReleased
+        val zeroFlowRooms = roomsByName.values.filter { it.flowRate == 0 || it.name == "AA" }.map { it.name }.toSet()
+        shortestPaths.values.forEach { it.keys.removeAll(zeroFlowRooms) }
+        val canGetToFromAA: Set<String> = shortestPaths.getValue("AA").keys
+        return shortestPaths.filter { it.key in canGetToFromAA || it.key == "AA" }
     }
+
+    private operator fun Map<String, MutableMap<String, Int>>.set(key1: String, key2: String, value: Int) {
+        getValue(key1)[key2] = value
+    }
+
+    private operator fun Map<String, Map<String, Int>>.get(
+        key1: String, key2: String, defaultValue: Int = 31000 // XXX
+    ): Int =
+        get(key1)?.get(key2) ?: defaultValue
 
     companion object {
         fun fromInput(input: List<String>) =
-            ProboscideaVolcanium(input.map { Room.fromInput(it) })
+            ProboscideaVolcanium(input.map { ValveRoom.fromInput(it) })
     }
 }
 
@@ -65,18 +73,18 @@ data class State(
     val totalPressureReleased: Int = 0
 )
 
-data class Room(
-    val valve: String,
+data class ValveRoom(
+    val name: String,
     val flowRate: Int,
     val neighbors: List<String>
 ) {
     companion object {
-        fun fromInput(input: String): Room {
+        fun fromInput(input: String): ValveRoom {
             val tokens = input.split('=', ';', ',', ' ')
-            val valve = tokens[1]
+            val name = tokens[1]
             val flowRate = tokens[5].toInt()
             val neighbors = tokens.drop(11).filter { it.isNotEmpty() }
-            return Room(valve, flowRate, neighbors)
+            return ValveRoom(name, flowRate, neighbors)
         }
     }
 }
