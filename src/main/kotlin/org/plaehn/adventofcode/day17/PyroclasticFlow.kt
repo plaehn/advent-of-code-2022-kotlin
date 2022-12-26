@@ -2,7 +2,6 @@ package org.plaehn.adventofcode.day17
 
 import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.Matrix
-import org.plaehn.adventofcode.common.cycle
 import org.plaehn.adventofcode.common.groupByBlankLines
 import org.plaehn.adventofcode.day17.Element.*
 
@@ -10,10 +9,9 @@ import org.plaehn.adventofcode.day17.Element.*
 class PyroclasticFlow(val jetPattern: List<Direction>, val shapes: List<Matrix<Element>>) {
 
     private val chamber = createChamber()
-    private val directions = jetPattern.asSequence().cycle().iterator()
-    private val fallingRocks = shapes.asSequence().cycle().iterator()
-
-
+    private var rockCounter = 0
+    private var jetCounter = 0
+    
     private fun createChamber(): Matrix<Element> {
         val chamber = Matrix.fromDimensions(WIDTH, HEIGHT, EMPTY)
         chamber.drawFloor()
@@ -38,7 +36,8 @@ class PyroclasticFlow(val jetPattern: List<Direction>, val shapes: List<Matrix<E
 
     fun computeTowerHeight(numberOfRocks: Int): Int {
         repeat(numberOfRocks) {
-            drop(fallingRocks.next())
+            drop(shapes.nth(rockCounter))
+            ++rockCounter
         }
 
         return chamber.towerHeight()
@@ -48,7 +47,8 @@ class PyroclasticFlow(val jetPattern: List<Direction>, val shapes: List<Matrix<E
         var position = Coord(3, chamber.towerHeight() + 4)
 
         do {
-            var newPosition = position + directions.next().offset
+            var newPosition = position + jetPattern.nth(jetCounter).offset
+            ++jetCounter
             if (!overlap(chamber, rock, newPosition)) {
                 position = newPosition
             }
@@ -79,6 +79,8 @@ class PyroclasticFlow(val jetPattern: List<Direction>, val shapes: List<Matrix<E
     private fun <T> Matrix<T>.towerHeight() = rows().drop(1).takeWhile { !it.isFree() }.size
 
     private fun <E> List<E>.isFree() = drop(1).dropLast(1).all { it == EMPTY }
+
+    fun <T> List<T>.nth(n: Int): T = this[n % size]
 
     companion object {
         private const val WIDTH = 9
