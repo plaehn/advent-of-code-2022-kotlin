@@ -5,21 +5,19 @@ import org.plaehn.adventofcode.common.Coord.Companion.LEFT
 import org.plaehn.adventofcode.common.Coord.Companion.RIGHT
 import org.plaehn.adventofcode.common.groupByBlankLines
 import org.plaehn.adventofcode.common.nth
-import java.lang.Integer.min
 import kotlin.math.absoluteValue
 
 
 class PyroclasticFlow(val jetPattern: List<Coord>, val rockShapes: List<Set<Coord>>) {
 
     private val chamber = createChamber()
-    private var minY = 0
     private var rockCounter = 0
     private var jetCounter = 0
 
     private fun createChamber() = Coord(0, 0).lineTo(Coord(6, 0)).toMutableSet()
 
-    fun computeTowerHeight(numberOfRocks: Int): Int {
-        repeat(numberOfRocks) {
+    fun solvePart1(): Int {
+        repeat(2022) {
             drop(rockShapes.nth(rockCounter))
             ++rockCounter
         }
@@ -27,10 +25,10 @@ class PyroclasticFlow(val jetPattern: List<Coord>, val rockShapes: List<Set<Coor
         return towerHeight()
     }
 
-    private fun towerHeight() = minY.absoluteValue
+    private fun towerHeight() = chamber.minY().absoluteValue
 
     private fun drop(rockShape: Set<Coord>) {
-        var position = Coord(2, minY - 4)
+        var position = Coord(2, chamber.minY() - 4)
 
         do {
             val jet = jetPattern.nth(jetCounter)
@@ -47,7 +45,7 @@ class PyroclasticFlow(val jetPattern: List<Coord>, val rockShapes: List<Set<Coor
             position = newPosition
         } while (true)
 
-        addToChamber(rockShape, position)
+        chamber += rockShape.at(position)
     }
 
     private fun overlap(rockShape: Set<Coord>, position: Coord): Boolean {
@@ -55,13 +53,52 @@ class PyroclasticFlow(val jetPattern: List<Coord>, val rockShapes: List<Set<Coor
         return chamber.intersect(rock).isNotEmpty() || rock.any { it.x !in (0..6) }
     }
 
-    private fun addToChamber(rockShape: Set<Coord>, position: Coord) {
-        val landedRock = rockShape.at(position)
-        minY = min(minY, landedRock.minOf { it.y })
-        chamber += landedRock
+    private fun Set<Coord>.at(position: Coord) = map { it + position }.toSet()
+
+    fun solvePart2(): Long {
+        val seen: MutableMap<State, Pair<Int, Int>> = mutableMapOf()
+        while (true) {
+            drop(rockShapes.nth(rockCounter++))
+
+            val state = State(
+                chamber.caveCeiling(),
+                rockCounter % rockShapes.size,
+                jetCounter % jetPattern.size
+            )
+            if (state in seen) {
+                val (rockCountAtLoopStart, heightAtLoopStart) = seen.getValue(state)
+                val blocksPerLoop: Long = rockCounter - 1L - rockCountAtLoopStart
+                val totalLoops: Long = (1000000000000 - 1 - rockCountAtLoopStart) / blocksPerLoop
+                val remainingBlocksFromClosestLoopToGoal: Long =
+                    (1000000000000 - 1 - rockCountAtLoopStart) - (totalLoops * blocksPerLoop)
+                val heightGainedSinceLoop = towerHeight() - heightAtLoopStart
+                repeat(remainingBlocksFromClosestLoopToGoal.toInt()) {
+                    drop(rockShapes.nth(rockCounter))
+                    ++rockCounter
+                }
+                return towerHeight() + (heightGainedSinceLoop * (totalLoops - 1))
+            }
+            seen[state] = rockCounter - 1 to towerHeight()
+        }
     }
 
-    private fun Set<Coord>.at(position: Coord) = map { it + position }.toSet()
+    private fun MutableSet<Coord>.caveCeiling(): List<Int> =
+        groupBy { it.x }
+            .entries
+            .sortedBy { it.key }
+            .map { pointList -> pointList.value.minByOrNull { point -> point.y } }
+            .let {
+                val normalTo = this.minY()
+                it.map { point -> normalTo - point!!.y }
+            }
+
+    private fun Set<Coord>.minY(): Int = minOf { it.y }
+
+    data class State(
+        val ceiling: List<Int>,
+        val rockCounterMod: Int,
+        val jetCounterMod: Int
+    )
 
     companion object {
 
@@ -91,24 +128,3 @@ class PyroclasticFlow(val jetPattern: List<Coord>, val rockShapes: List<Set<Coor
     }
 }
 
-
-enum class Direction(val offset: Coord) {
-
-    LEFT(Coord(-1, 0)),
-    RIGHT(Coord(1, 0));
-
-    override fun toString() =
-        when (this) {
-            LEFT -> "<"
-            RIGHT -> ">"
-        }
-
-    companion object {
-        fun fromInput(input: Char) =
-            when (input) {
-                '<' -> LEFT
-                '>' -> RIGHT
-                else -> throw IllegalArgumentException("Invalid direction $input")
-            }
-    }
-}
