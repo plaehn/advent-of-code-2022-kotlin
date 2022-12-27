@@ -1,6 +1,10 @@
 package org.plaehn.adventofcode.day08
 
 import org.plaehn.adventofcode.common.Coord
+import org.plaehn.adventofcode.common.Coord.Companion.DOWN
+import org.plaehn.adventofcode.common.Coord.Companion.LEFT
+import org.plaehn.adventofcode.common.Coord.Companion.RIGHT
+import org.plaehn.adventofcode.common.Coord.Companion.UP
 import org.plaehn.adventofcode.common.Matrix
 import org.plaehn.adventofcode.common.product
 
@@ -17,7 +21,7 @@ class TreetopTreeHouse(private val grid: Matrix<Int>) {
             .product()
 
     private fun Coord.enumerateSightLines(): List<List<Int>> =
-        listOf(Coord(-1, 0), Coord(1, 0), Coord(0, -1), Coord(0, 1))
+        listOf(LEFT, RIGHT, DOWN, UP)
             .map { direction ->
                 var current = this
                 sequence {

@@ -1,6 +1,10 @@
 package org.plaehn.adventofcode.day09
 
 import org.plaehn.adventofcode.common.Coord
+import org.plaehn.adventofcode.common.Coord.Companion.DOWN
+import org.plaehn.adventofcode.common.Coord.Companion.LEFT
+import org.plaehn.adventofcode.common.Coord.Companion.RIGHT
+import org.plaehn.adventofcode.common.Coord.Companion.UP
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
@@ -21,7 +25,7 @@ class RopeBridge(private val motions: List<Motion>, private val numberOfKnots: I
     private fun Motion.perform(knots: MutableList<Coord>, touchedByTail: MutableSet<Coord>) {
         repeat(steps) {
             knots.forEachIndexed { idx, knot ->
-                val offset = if (idx == 0) direction.offset else computeTailOffset(knots[idx - 1], knot)
+                val offset = if (idx == 0) offset else computeTailOffset(knots[idx - 1], knot)
                 knots[idx] += offset
             }
             touchedByTail.add(knots.last())
@@ -46,32 +50,22 @@ class RopeBridge(private val motions: List<Motion>, private val numberOfKnots: I
 }
 
 data class Motion(
-    val direction: Direction,
+    val offset: Coord,
     val steps: Int
 ) {
     companion object {
         fun fromInput(input: String): Motion {
             val (direction, steps) = input.split(' ')
-            return Motion(Direction.fromInput(direction), steps.toInt())
+            return Motion(direction.toOffset(), steps.toInt())
         }
-    }
-}
 
-enum class Direction(val offset: Coord) {
-
-    UP(Coord(0, -1)),
-    DOWN(Coord(0, 1)),
-    LEFT(Coord(-1, 0)),
-    RIGHT(Coord(1, 0));
-
-    companion object {
-        fun fromInput(input: String) =
-            when (input) {
+        private fun String.toOffset() =
+            when (this) {
                 "U" -> UP
                 "D" -> DOWN
                 "R" -> RIGHT
                 "L" -> LEFT
-                else -> throw IllegalArgumentException("Unknown direction $input")
+                else -> throw IllegalArgumentException("Unknown direction $this")
             }
     }
 }

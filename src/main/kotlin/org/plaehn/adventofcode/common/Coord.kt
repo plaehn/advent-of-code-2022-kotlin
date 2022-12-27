@@ -26,6 +26,12 @@ data class Coord(val x: Int, val y: Int, val z: Int = 0) {
     }
 
     companion object {
+
+        val UP = Coord(0, 1)
+        val DOWN = Coord(0, -1)
+        val LEFT = Coord(-1, 0)
+        val RIGHT = Coord(1, 0)
+
         fun fromString(input: String) =
             input.split(",").map { it.toInt() }.run {
                 Coord(this[0], this[1], this.getOrElse(2) { 0 })
