@@ -1,7 +1,5 @@
 package org.plaehn.adventofcode.common
 
-import com.google.common.collect.Sets
-
 data class Matrix<T>(
     private val matrix: List<MutableList<T>>,
     private val defaultValue: T
@@ -43,15 +41,9 @@ data class Matrix<T>(
         }.toMap()
 
     fun neighbors(coord: Coord, includeDiagonals: Boolean = false) =
-        neighborOffsets(includeDiagonals)
-            .map { coord + it }
+        coord
+            .neighbors(includeDiagonals)
             .filter { isInsideBounds(it) }
-
-    private fun neighborOffsets(includeDiagonals: Boolean) =
-        Sets.cartesianProduct(List(2) { (-1..1).toSet() })
-            .map { Coord(it.first(), it.last()) }
-            .filter { !it.isCenter() }
-            .filter { includeDiagonals || it.x == 0 || it.y == 0 }
 
     fun isInsideBounds(coord: Coord) = coord.y in 0 until height() && coord.x in 0 until width()
 

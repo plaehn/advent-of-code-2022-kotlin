@@ -1,5 +1,6 @@
 package org.plaehn.adventofcode.common
 
+import com.google.common.collect.Sets
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
@@ -25,6 +26,16 @@ data class Coord(val x: Int, val y: Int, val z: Int = 0) {
         return (1..steps).scan(this) { last, _ -> Coord(last.x + xDelta, last.y + yDelta) }
     }
 
+    fun neighbors(includeDiagonals: Boolean = false, dimensions: Int = 2) =
+        neighborOffsets(includeDiagonals, dimensions)
+            .map { this + it }
+
+    private fun neighborOffsets(includeDiagonals: Boolean, dimensions: Int) =
+        Sets.cartesianProduct(List(dimensions) { (-1..1).toSet() })
+            .map { fromList(it) }
+            .filter { !it.isCenter() }
+            .filter { offset -> includeDiagonals || 1 == listOf(offset.x, offset.y, offset.z).count { it != 0 } }
+
     companion object {
 
         val UP = Coord(0, 1)
@@ -38,6 +49,6 @@ data class Coord(val x: Int, val y: Int, val z: Int = 0) {
             }
 
         fun fromList(input: List<Int>) =
-            Coord(x = input[0], y = input[1], z = input[2])
+            Coord(x = input[0], y = input[1], z = input.getOrElse(2) { 0 })
     }
 }
